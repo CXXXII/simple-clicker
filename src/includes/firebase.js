@@ -1,6 +1,5 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/auth";
-import "firebase/compat/firestore";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD8XNZ1Sdt0-UJHTfy4VPLcnC1dRBj_oeg",
@@ -11,14 +10,7 @@ const firebaseConfig = {
   appId: "1:792185690419:web:f877ebdefec93ce0370646",
 };
 
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-const db = firebase.firestore();
-
-db.enablePersistence().catch((error) => {
-  console.log(`Firebase persistence error ${error.code}`);
-});
-
-const dataCollection = db.collection("data");
-
-export { dataCollection, db };
+export { db };

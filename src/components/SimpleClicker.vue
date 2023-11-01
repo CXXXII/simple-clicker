@@ -12,7 +12,8 @@
 </template>
 
 <script>
-import { dataCollection } from "@/includes/firebase.js";
+import { db } from "@/includes/firebase.js";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export default {
   data() {
@@ -40,20 +41,23 @@ export default {
       this.time = `${newDate.getHours()}:${minutes}`;
     },
     async getData() {
-      await dataCollection
-        .doc("1")
-        .get()
-        .then((doc) => {
-          const newData = doc.data();
-          this.result = newData.result;
-          this.time = newData.time;
-        });
+      const docRef = doc(db, "data", "1");
+      const docSnap = await getDoc(docRef);
+      const newData = docSnap.data();
+      this.result = newData.result;
+      this.time = newData.time;
     },
     async setResult(newValue) {
-      await dataCollection.doc("1").update({ result: newValue });
+      const docRef = doc(db, "data", "1");
+      await updateDoc(docRef, {
+        result: newValue,
+      });
     },
     async setTime(newValue) {
-      await dataCollection.doc("1").update({ time: newValue });
+      const docRef = doc(db, "data", "1");
+      await updateDoc(docRef, {
+        time: newValue,
+      });
     },
     reset() {
       this.result = 0;
