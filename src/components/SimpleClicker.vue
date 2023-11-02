@@ -34,8 +34,9 @@ export default {
       this.timedelta = "00:00";
       this.timeInterval = setInterval(() => {
         const now = Date.now();
-        const seconds = Math.floor((now - newVal) / 1000);
-        const minutes = Math.floor(seconds / 1000);
+        const totalSeconds = Math.floor((now - newVal) / 1000);
+        const seconds = totalSeconds % 60;
+        const minutes = Math.floor(totalSeconds / 60);
         function padTo2Digits(num) {
           return num.toString().padStart(2, "0");
         }
