@@ -1,8 +1,9 @@
 <template>
   <main class="main">
-    <h1>Simple Clicker</h1>
-    <div class="value">Result: {{ result }}</div>
-    <div class="time">DateTime: {{ time }}</div>
+    <h1>Simple Counter</h1>
+    <div class="value">Count: {{ result }}</div>
+    <div class="time">Time: {{ time }}</div>
+    <time-delta :displayDelta="timedelta"></time-delta>
     <div class="buttons">
       <button @click="reset">Reset</button>
       <button @click="plus">Plus</button>
@@ -14,18 +15,37 @@
 <script>
 import { db } from "@/includes/firebase.js";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import TimeDelta from "./TimeDelta.vue";
 
 export default {
+  components: { TimeDelta },
   data() {
     return {
       result: 0,
-      time: "Empty",
+      time: "00:00",
+      isLoaded: false,
+      initTime: "",
+      timedelta: "00:00",
+      timeInterval: "",
     };
   },
   watch: {
+    initTime(newVal) {
+      this.timedelta = "00:00";
+      this.timeInterval = setInterval(() => {
+        const now = Date.now();
+        const seconds = Math.floor((now - newVal) / 1000);
+        const minutes = Math.floor(seconds / 1000);
+        function padTo2Digits(num) {
+          return num.toString().padStart(2, "0");
+        }
+        this.timedelta = `${padTo2Digits(minutes)}:${padTo2Digits(seconds)}`;
+      }, 1000);
+    },
     result(newValue) {
       this.setResult(newValue);
     },
+
     time(newValue) {
       this.setTime(newValue);
     },
@@ -39,6 +59,8 @@ export default {
           ? "0" + newDate.getMinutes()
           : newDate.getMinutes();
       this.time = `${newDate.getHours()}:${minutes}`;
+      clearInterval(this.timeInterval);
+      this.initTime = Date.now();
     },
     async getData() {
       const docRef = doc(db, "data", "1");
@@ -61,7 +83,9 @@ export default {
     },
     reset() {
       this.result = 0;
-      this.time = "Empty";
+      this.time = "00:00";
+      this.timedelta = "00:00";
+      clearInterval(this.timeInterval);
     },
     minus() {
       this.result -= 1;
@@ -69,6 +93,10 @@ export default {
   },
   beforeMount() {
     this.getData();
+  },
+
+  beforeUnmount() {
+    clearInterval(this.timeInterval);
   },
 };
 </script>
